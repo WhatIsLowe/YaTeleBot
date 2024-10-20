@@ -1,6 +1,6 @@
 from aiogram import BaseMiddleware
 from aiogram.types import Message
-from tools.yagpt import YaGptManager
+from yagptmanager import YaGptManager
 
 
 class YaGptMiddleware(BaseMiddleware):

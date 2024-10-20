@@ -6,8 +6,9 @@ from aiogram import Dispatcher, Bot
 from aiogram.types import BotCommand
 from aiogram.utils.chat_action import ChatActionMiddleware
 
+from yagptmanager import YaGptManager
+
 from middleware import YaGptMiddleware
-from tools.yagpt import YaGptManager
 
 from routes.start import router as start_router
 from config import settings
