@@ -21,17 +21,14 @@ class Tokenizer(BaseTokenizer):
         self.max_tokens = max_tokens
 
     async def _make_request(self, url: str, body: dict, token: str) -> int:
-        headers = {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {token}"
-        }
+        headers = {"Content-Type": "application/json", "Authorization": f"Bearer {token}"}
 
         async with ClientSession(headers=headers) as session:
             async with session.post(url=url, json=body) as response:
                 if response.status != 200:
                     raise TokenizationError(f"Ошибка при токенизации: {response.status} {await response.text()}")
                 data = await response.json()
-                token_count = len(data['tokens'])
+                token_count = len(data["tokens"])
                 logger.debug(f"Количество токенов: {token_count}")
                 return token_count
 
@@ -42,17 +39,14 @@ class Tokenizer(BaseTokenizer):
                 "stream": False,
                 "maxTokens": self.max_tokens,
             },
-            "messages": messages
+            "messages": messages,
         }
 
         logger.debug(f"Запрос на токенизацию контекста: {payload}")
         return await self._make_request(self.url_completion, payload, token)
 
     async def tokenize(self, text: str, token: str) -> int:
-        payload = {
-            "modelUri": self.model_uri,
-            "text": text
-        }
+        payload = {"modelUri": self.model_uri, "text": text}
 
         logger.debug(f"Запрос на токенизацию текста: {payload}")
         return await self._make_request(self.url, payload, token)

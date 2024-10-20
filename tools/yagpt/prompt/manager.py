@@ -14,16 +14,16 @@ class PromptManager(BasePromptCleaner):
         logger.debug(f"Очистка промпта: {prompt}")
 
         # Удаление эмодзи
-        prompt = emoji.replace_emoji(prompt, replace='')
+        prompt = emoji.replace_emoji(prompt, replace="")
 
         # Удаление диакритических знаков
-        prompt = unicodedata.normalize('NFD', prompt)
-        prompt = ''.join(char for char in prompt if unicodedata.category(char) != 'Mn')
+        prompt = unicodedata.normalize("NFD", prompt)
+        prompt = "".join(char for char in prompt if unicodedata.category(char) != "Mn")
 
         # Удаление спецсимволов, кроме основных пунктуационных знаков
-        prompt = re.sub(r'[^\w\s.,!?-]', '', prompt)
+        prompt = re.sub(r"[^\w\s.,!?-]", "", prompt)
 
-        prompt = re.sub(r'\s+', ' ', prompt).strip()
+        prompt = re.sub(r"\s+", " ", prompt).strip()
 
         if not prompt or prompt == "":
             raise EmptyTextError("Отправка пустого сообщения или сообщение состоит только из запрещенных символов")

@@ -35,20 +35,14 @@ class ContextManager(BaseContextManager):
         while len(context) >= self.max_context_messages:
             context.popleft()
 
-        total_tokens = sum(msg['tokens'] for msg in context) + new_message.tokens
+        total_tokens = sum(msg["tokens"] for msg in context) + new_message.tokens
         logger.debug(f"total_tokens: {total_tokens}")
         while total_tokens >= self.max_tokens and context:
             removed_message = context.popleft()
-            total_tokens -= removed_message['tokens']
+            total_tokens -= removed_message["tokens"]
 
         context_list = list(context)
-        context_list.append(
-            {
-                "role": new_message.role,
-                "text": new_message.text,
-                "tokens": new_message.tokens
-            }
-        )
+        context_list.append({"role": new_message.role, "text": new_message.text, "tokens": new_message.tokens})
         await self.cache_manager.set(f"context:{session_id}", json.dumps(context_list), ttl=3600)
         logger.debug(f"Контекст для сессии {session_id} обновлен")
         return context_list

@@ -33,14 +33,7 @@ class AuthManager:
     def _validate_and_load_key(self) -> None:
         """Проверяет наличие необходимых полей и загружает приватный ключ"""
 
-        required_fields = [
-            "id",
-            "service_account_id",
-            "created_at",
-            "key_algorithm",
-            "public_key",
-            "private_key"
-        ]
+        required_fields = ["id", "service_account_id", "created_at", "key_algorithm", "public_key", "private_key"]
 
         missing_fields = [field for field in required_fields if field not in self._service_account_key]
         if missing_fields:
@@ -48,13 +41,13 @@ class AuthManager:
             raise YaGptException(f"Отсутствуют необходимые поля в ключе сервисного аккаунта: {missing_fields}")
 
         key_algorithm = self._service_account_key.get("key_algorithm")
-        if key_algorithm not in ['RSA_2048', 'RSA_4096']:
+        if key_algorithm not in ["RSA_2048", "RSA_4096"]:
             logger.error("Неподдерживаемый алгоритм ключа. Ожидались 'RSA_2048' или 'RSA_4096'")
             raise YaGptException("Неподдерживаемый алгоритм ключа. Ожидались 'RSA_2048' или 'RSA_4096'")
 
         self._service_account_id = self._service_account_key.get("service_account_id")
         private_key_pem = self._service_account_key.get("private_key")
-        self._private_key = private_key_pem.encode('utf-8')
+        self._private_key = private_key_pem.encode("utf-8")
         logger.debug("Ключ сервисного аккаунта загружен!")
 
     def _create_jwt(self) -> str:
@@ -69,15 +62,13 @@ class AuthManager:
             "sub": self._service_account_id,
             "aud": "https://iam.api.cloud.yandex.net/iam/v1/tokens",
             "iat": now,
-            "exp": now + 3600
+            "exp": now + 3600,
         }
 
         try:
             private_key = serialization.load_pem_private_key(self._private_key, password=None)
-            headers = {
-                "kid": self._service_account_key["id"]
-            }
-            jwt_encoded = jwt.encode(payload, private_key, algorithm='PS256', headers=headers)
+            headers = {"kid": self._service_account_key["id"]}
+            jwt_encoded = jwt.encode(payload, private_key, algorithm="PS256", headers=headers)
             logger.debug(f"JWT успешно создан и подписан: {jwt_encoded}")
             return jwt_encoded
         except (ValueError, InvalidTokenError) as e:
@@ -99,8 +90,8 @@ class AuthManager:
                         raise YaGptException(f"Ошибка при получении IAM токена: {response.status}: {err_text}")
 
                     data = await response.json()
-                    self._token = data['iamToken']
-                    expires_in = data.get('expiresIn', 43200)   # По умолчанию 12 часов
+                    self._token = data["iamToken"]
+                    expires_in = data.get("expiresIn", 43200)  # По умолчанию 12 часов
                     # Период обновления токена устанавливаем на 10 минут раньше
                     self._token_expiry = time.time() + expires_in - 600
                     logger.debug("Получен новый IAM токен")

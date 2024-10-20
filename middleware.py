@@ -9,5 +9,5 @@ class YaGptMiddleware(BaseMiddleware):
         self.yagpt_manager = yagpt_manager
 
     async def __call__(self, handler, event: Message, data: dict):
-        data['yagpt_manager'] = self.yagpt_manager
+        data["yagpt_manager"] = self.yagpt_manager
         return await handler(event, data)

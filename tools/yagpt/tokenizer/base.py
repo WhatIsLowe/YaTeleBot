@@ -4,6 +4,7 @@ from typing import Optional
 
 class BaseTokenizer(ABC):
     """Класс для вычисления количества токенов"""
+
     async def tokenize_completion(self, messages: dict, token: Optional[str]) -> int:
         """Подсчитывает количество токенов в контексте с помощью API Yandex Cloud.
 

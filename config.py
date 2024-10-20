@@ -26,23 +26,29 @@ class BaseConfig(BaseSettings):
 
     @property
     def REDIS_DSN(self) -> RedisDsn:
-        return cast(RedisDsn, RedisDsn.build(
-            scheme="redis",
-            host=self.REDIS_HOST,
-            port=self.REDIS_PORT,
-            path=str(self.REDIS_DB),
-        ))
+        return cast(
+            RedisDsn,
+            RedisDsn.build(
+                scheme="redis",
+                host=self.REDIS_HOST,
+                port=self.REDIS_PORT,
+                path=str(self.REDIS_DB),
+            ),
+        )
 
     @property
     def POSTGRES_DSN(self) -> PostgresDsn:
-        return cast(PostgresDsn, PostgresDsn.build(
-            scheme="postgresql+asyncpg",
-            username=self.POSTGRES_USER,
-            password=self.POSTGRES_PASSWORD,
-            host=self.POSTGRES_HOST,
-            port=self.POSTGRES_PORT,
-            path=self.POSTGRES_DB,
-        ))
+        return cast(
+            PostgresDsn,
+            PostgresDsn.build(
+                scheme="postgresql+asyncpg",
+                username=self.POSTGRES_USER,
+                password=self.POSTGRES_PASSWORD,
+                host=self.POSTGRES_HOST,
+                port=self.POSTGRES_PORT,
+                path=self.POSTGRES_DB,
+            ),
+        )
 
 
 class DevSettings(BaseConfig):

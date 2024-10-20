@@ -12,7 +12,7 @@ from ..exceptions import (
     InvalidResponse,
     RedisConnectionError,
     RequestTimeoutException,
-    TokenizationError
+    TokenizationError,
 )
 
 from ..prompt.base import BasePromptCleaner
@@ -35,23 +35,24 @@ class Message(BaseModel):
 
 class YaGptManager:
     """Менеджер взаимодействия с Yandex GPT API"""
+
     base_url = "https://llm.api.cloud.yandex.net/foundationModels/v1"
 
     def __init__(
-            self,
-            service_account_key: dict,
-            gpt_role: str,
-            yc_folder_id: str,
-            redis_dsn: str,
-            tokenizer: Optional[BaseTokenizer] = None,
-            context_manager: Optional[BaseContextManager] = None,
-            cache_manager: Optional[BaseCache] = None,
-            prompt_manager: Optional[BasePromptCleaner] = None,
-            max_tokens: int = 7500,
-            max_context_messages: int = 5,
-            async_mode: bool = False,
-            logger: Optional[logging.Logger] = None,
-            async_timeout: int = 60,
+        self,
+        service_account_key: dict,
+        gpt_role: str,
+        yc_folder_id: str,
+        redis_dsn: str,
+        tokenizer: Optional[BaseTokenizer] = None,
+        context_manager: Optional[BaseContextManager] = None,
+        cache_manager: Optional[BaseCache] = None,
+        prompt_manager: Optional[BasePromptCleaner] = None,
+        max_tokens: int = 7500,
+        max_context_messages: int = 5,
+        async_mode: bool = False,
+        logger: Optional[logging.Logger] = None,
+        async_timeout: int = 60,
     ):
         self._gpt_role = gpt_role
         self._max_tokens = max_tokens
@@ -66,10 +67,7 @@ class YaGptManager:
         self._prompt_manager = prompt_manager or PromptManager()
         self._auth_manager = AuthManager(service_account_key=service_account_key)
 
-        self._headers = {
-            'Content-Type': 'application/json',
-            'x-folder-id': yc_folder_id
-        }
+        self._headers = {"Content-Type": "application/json", "x-folder-id": yc_folder_id}
 
         self._system_message = {
             "role": Role.SYSTEM.value,
@@ -99,7 +97,7 @@ class YaGptManager:
                         raise InvalidResponse(f"Ошибка при запросе к Yandex GPT API: {response.status}: {err_text}")
 
                     if self._async_mode:
-                        operation_id = (await response.json())['id']
+                        operation_id = (await response.json())["id"]
                         response = await self._get_async_result(operation_id, token)
                         return response
 
@@ -127,8 +125,8 @@ class YaGptManager:
                                 )
                             self.logger.debug(f"Запрос статуса асинхрон: {response.status} | {await response.json()}")
                             operation_data = await response.json()
-                            if operation_data['done']:
-                                return operation_data['response']
+                            if operation_data["done"]:
+                                return operation_data["response"]
 
             except asyncio.TimeoutError:
                 raise RequestTimeoutException(
@@ -140,12 +138,7 @@ class YaGptManager:
             prompt = self._prompt_manager.clean(prompt)
         prompt_tokens = await self._tokenizer.tokenize(prompt, token)
         context = await self._context_manager.update_context(
-            session_id,
-            MessageContext(
-                role=Role.USER,
-                text=prompt,
-                tokens=prompt_tokens
-            )
+            session_id, MessageContext(role=Role.USER, text=prompt, tokens=prompt_tokens)
         )
         return context
 
@@ -154,22 +147,17 @@ class YaGptManager:
         context = await self._prepare_context(prompt, session_id, token)
         body = {
             "modelUri": self._model_uri,
-            "completionOptions": {
-                "stream": False,
-                "temperature": 0.3,
-                "maxTokens": "500"
-            },
-            "messages": [self._system_message] + context
+            "completionOptions": {"stream": False, "temperature": 0.3, "maxTokens": "500"},
+            "messages": [self._system_message] + context,
         }
         response = await self._make_request(
             url=self.base_url + "/completionAsync" if self._async_mode else "/completion",
             payload=body,
         )
 
-        answer_tokens = response['usage']['completionTokens']
-        answer = response['alternatives'][0]['message']['text']
+        answer_tokens = response["usage"]["completionTokens"]
+        answer = response["alternatives"][0]["message"]["text"]
         _ = await self._context_manager.update_context(
-            session_id,
-            MessageContext(role=Role.ASSISTANT, text=answer, tokens=answer_tokens)
+            session_id, MessageContext(role=Role.ASSISTANT, text=answer, tokens=answer_tokens)
         )
         return answer
