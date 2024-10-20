@@ -13,7 +13,6 @@ async def start_command(message: Message):
     await message.answer("Hello!")
 
 
-# @router.message(Command(commands=['chat']))
 @router.message()
 async def chat_command(message: Message, yagpt_manager):
     print(message.model_dump_json())
