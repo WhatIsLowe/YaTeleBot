@@ -20,7 +20,7 @@ class BaseConfig(BaseSettings):
     REDIS_PORT: int
     REDIS_DB: int = 0
 
-    LOG_LEVEL: str = "info"
+    LOG_LEVEL: str = "INFO"
 
     ENV: str = "dev"
 
@@ -54,13 +54,13 @@ class BaseConfig(BaseSettings):
 class DevSettings(BaseConfig):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
-    LOG_LEVEL: str = "debug"
+    LOG_LEVEL: str = "DEBUG"
 
 
 class ProdSettings(BaseConfig):
     model_config = SettingsConfigDict(env_file=None)
 
-    LOG_LEVEL: str = "info"
+    LOG_LEVEL: str = "INFO"
 
 
 def get_settings() -> BaseConfig:

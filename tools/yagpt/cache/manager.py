@@ -8,7 +8,10 @@ logger = logging.getLogger(__name__)
 
 
 class CacheManager(BaseCache):
-    """Менеджер кэша на основе Redis"""
+    """Менеджер кэша на основе Redis.
+
+    :param redis_dsn: DSN строка для подключения к Redis.
+    """
 
     def __init__(self, redis_dsn: str):
         self.redis = aioredis.from_url(redis_dsn, decode_responses=True)

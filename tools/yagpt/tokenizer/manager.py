@@ -1,6 +1,6 @@
 from aiohttp import ClientSession
 import logging
-from typing import List, Optional
+from typing import List
 
 from .base import BaseTokenizer
 from ..exceptions import TokenizationError
@@ -9,14 +9,16 @@ logger = logging.getLogger(__name__)
 
 
 class Tokenizer(BaseTokenizer):
+    """Класс для вычисления стоимости текста в токенах.
+
+    :param model_uri: Ссылка на модель.
+    :param max_tokens: Максимальное количество токенов.
+    """
+
     url_completion: str = "https://llm.api.cloud.yandex.net/foundationModels/v1/tokenizeCompletion"
     url: str = "https://llm.api.cloud.yandex.net/foundationModels/v1/tokenize"
 
     def __init__(self, model_uri: str, max_tokens: int):
-        """
-        :param model_uri: Ссылка на модель
-        :param max_tokens: Максимальное количество токенов
-        """
         self.model_uri = model_uri
         self.max_tokens = max_tokens
 
@@ -33,6 +35,14 @@ class Tokenizer(BaseTokenizer):
                 return token_count
 
     async def tokenize_completion(self, messages: List[dict], token: str) -> int:
+        """Подсчитывает количество токенов в контексте с помощью API Yandex Cloud.
+
+        :param messages: Контекст для токенизации.
+        :param token: IAM токен.
+
+        :return: Количество токенов в контексте.
+        """
+
         payload = {
             "modelUri": self.model_uri,
             "CompletionOptions": {
@@ -46,6 +56,13 @@ class Tokenizer(BaseTokenizer):
         return await self._make_request(self.url_completion, payload, token)
 
     async def tokenize(self, text: str, token: str) -> int:
+        """Подсчитывает количество токенов в тексте с помощью API Yandex Cloud.
+
+        :param text: Текст для токенизации.
+        :param token: IAM токен.
+
+        :return: Количество токенов в тексте
+        """
         payload = {"modelUri": self.model_uri, "text": text}
 
         logger.debug(f"Запрос на токенизацию текста: {payload}")

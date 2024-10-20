@@ -11,6 +11,11 @@ logger = logging.getLogger(__name__)
 
 class PromptManager(BasePromptCleaner):
     def clean(self, prompt: str) -> str:
+        """Очищает промпт от запрещенных(ненужных) символов.
+
+        :param prompt: Текст запроса.
+        :return: Очищенный текст запроса.
+        """
         logger.debug(f"Очистка промпта: {prompt}")
 
         # Удаление эмодзи
@@ -23,8 +28,10 @@ class PromptManager(BasePromptCleaner):
         # Удаление спецсимволов, кроме основных пунктуационных знаков
         prompt = re.sub(r"[^\w\s.,!?-]", "", prompt)
 
+        # Удаление лишних пробелов до и после текста
         prompt = re.sub(r"\s+", " ", prompt).strip()
 
+        # Если итоговый промпт пуст - выбрасывает исключение
         if not prompt or prompt == "":
             raise EmptyTextError("Отправка пустого сообщения или сообщение состоит только из запрещенных символов")
 
